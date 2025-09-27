@@ -22,7 +22,16 @@ An HTTP API that follow REST style that returns Canadian **federal** income tax 
 * `GET /health` → `200 OK`
 * `GET /v1/income-tax?year=[YEAR]&salary=[SALARY]`
 
+
+| Name     | Type             | Required | Example    | Notes                                           |
+| -------- | ---------------- | :------: | ---------- | ----------------------------------------------- |
+| `year`   | integer          |     ✅    | `2019`     | Supported tax table year                        |
+| `salary` | number or string |     ✅    | `50000.25` | Annual income; decimals allowed (dollars.cents) |
+
+Example
+```bash
 http://localhost:8080/v1/income-tax?year=2019&salary=50000.25
+```
 
   **200**:
 
