@@ -1,4 +1,4 @@
-# Go Tax Calculator – Brief API Docs
+# Go Tax Calculator – API Docs
 
 ## Project
 
@@ -29,9 +29,9 @@ An HTTP API that follow REST style that returns Canadian **federal** income tax 
 | `salary` | number or string |     ✅    | `50000.25` | Annual income; decimals allowed (dollars.cents) |
 
 Example
-```bash
-http://localhost:8080/v1/income-tax?year=2019&salary=50000.25
-```
+
+`http://localhost:8080/v1/income-tax?year=2019&salary=50000.25`
+
 
   **200**:
 
