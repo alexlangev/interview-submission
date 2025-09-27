@@ -20,3 +20,7 @@ func RateToBasisPoint(r float64) int64 {
 func DivRoundHalfUp(n, div int64) int64 {
 	return (n + div/2) / div
 }
+
+func BasisPointToRate(bp int64) float64 {
+	return float64(bp) / 10000.0
+}

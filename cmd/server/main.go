@@ -1,28 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
 	"net/http"
 
+	"github.com/alexlangev/interview-submission/client"
 	"github.com/alexlangev/interview-submission/internal/api"
+	"github.com/alexlangev/interview-submission/internal/core"
 )
 
 func main() {
-	fmt.Println("Smoke")
+	apiURL := flag.String("api-url", "http://localhost:5001", "tax API base URL")
+	addr := flag.String("addr", ":8080", "listen address")
+	flag.Parse()
 
-	const apiURL = "http://localhost:5001"
-	const port = ":8080"
+	prov := client.NewClient(*apiURL, nil)
+	calc := core.NewCalculator(prov)
 
-	// prov := client.NewClient(apiURL, nil)
-
-	r := api.NewRouter()
+	r := api.NewRouter(calc)
 
 	srv := &http.Server{
-		Addr:    port,
+		Addr:    *addr,
 		Handler: r,
 	}
 
-	log.Printf("HTTP server listening on %s (api-url=%s)", port, apiURL)
+	log.Printf("HTTP server listening on %s (api-url=%s)", *addr, apiURL)
 	log.Fatal(srv.ListenAndServe())
 }

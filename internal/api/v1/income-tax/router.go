@@ -1,19 +1,14 @@
 package v1
 
 import (
-	"net/http"
-
+	"github.com/alexlangev/interview-submission/internal/core"
 	"github.com/go-chi/chi/v5"
 )
 
-func New() chi.Router {
+func New(calc *core.Calculator) chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/income-tax", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("smoke at v1/calculate"))
-	})
+	r.Get("/income-tax", Calculate(calc))
 
 	return r
 }
