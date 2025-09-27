@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/alexlangev/interview-submission/client"
 	"github.com/alexlangev/interview-submission/internal/api"
+	"github.com/alexlangev/interview-submission/internal/client"
 	"github.com/alexlangev/interview-submission/internal/core"
 )
 

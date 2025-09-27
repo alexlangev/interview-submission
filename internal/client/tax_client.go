@@ -34,7 +34,7 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 func (c *Client) GetTaxBrackets(year int) ([]models.TaxBracket, error) {
 	url := fmt.Sprintf("%s/tax-calculator/tax-year/%d", c.BaseURL, year)
 
-	start := time.Now() // time of first query
+	start := time.Now() // first query
 	attempts := c.MaxRetries + 1
 
 	for attempt := 0; attempt < attempts; attempt++ {
