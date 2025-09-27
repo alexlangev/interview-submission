@@ -10,9 +10,11 @@ import (
 )
 
 type Client struct {
-	BaseURL    string
-	HTTPClient *http.Client
-	// retries logic?
+	BaseURL      string
+	HTTPClient   *http.Client
+	MaxRetries   int
+	RetriesDelay time.Duration
+	TotalTimeout time.Duration
 }
 
 func NewClient(baseURL string, httpClient *http.Client) *Client {
@@ -21,28 +23,69 @@ func NewClient(baseURL string, httpClient *http.Client) *Client {
 	}
 
 	return &Client{
-		BaseURL:    baseURL,
-		HTTPClient: httpClient,
+		BaseURL:      baseURL,
+		HTTPClient:   httpClient,
+		MaxRetries:   5,
+		RetriesDelay: 250 * time.Millisecond,
+		TotalTimeout: 10 * time.Second,
 	}
 }
 
 func (c *Client) GetTaxBrackets(year int) ([]models.TaxBracket, error) {
 	url := fmt.Sprintf("%s/tax-calculator/tax-year/%d", c.BaseURL, year)
 
-	resp, err := c.HTTPClient.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
+	start := time.Now() // time of first query
+	attempts := c.MaxRetries + 1
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status %d from %s", resp.StatusCode, url)
+	for attempt := 0; attempt < attempts; attempt++ {
+		fmt.Println("client attempt: ", attempt)
+		// sleep between retries
+		if attempt > 0 {
+			if time.Since(start)+c.RetriesDelay > c.TotalTimeout {
+				return nil, fmt.Errorf("Timeout: exceeded total timeout (%s)", c.TotalTimeout)
+			}
+			time.Sleep(c.RetriesDelay)
+		}
+
+		resp, err := c.HTTPClient.Get(url)
+		if err != nil {
+			if attempt < c.MaxRetries && time.Since(start) < c.TotalTimeout {
+				continue
+			}
+			return nil, fmt.Errorf("request failed: %w", err)
+		}
+
+		// Status 200
+		if resp.StatusCode == http.StatusOK {
+			var responseData models.TaxResponse
+
+			err := json.NewDecoder(resp.Body).Decode(&responseData)
+			if err != nil {
+				resp.Body.Close()
+				return nil, fmt.Errorf("decode JSON: %w", err)
+			}
+			resp.Body.Close()
+
+			brackets := []models.TaxBracket{}
+			for _, v := range responseData.TaxBrackets {
+				brackets = append(brackets, models.TaxBracket{Min: v.Min, Max: v.Max, Rate: v.Rate})
+			}
+			return brackets, nil
+		}
+
+		resp.Body.Close()
+
+		// Status 500
+		if resp.StatusCode >= 500 && resp.StatusCode <= 599 {
+			if attempt < c.MaxRetries && time.Since(start) < c.TotalTimeout {
+				continue
+			}
+			return nil, fmt.Errorf("Server error after retries: %d", resp.StatusCode)
+		}
+
+		// Other non-retryable errors
+		return nil, fmt.Errorf("upstream status %d", resp.StatusCode)
 	}
 
-	var payload models.TaxResponse
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return nil, fmt.Errorf("decode JSON: %w", err)
-	}
-
-	return payload.TaxBrackets, nil
+	return nil, fmt.Errorf("exhausted retries fetching tax brackets")
 }
