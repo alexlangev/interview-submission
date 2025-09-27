@@ -7,7 +7,7 @@ An HTTP API that follow REST style that returns Canadian **federal** income tax 
 ## Stack
 
 * Go, `net/http`, `chi`
-* Modules: `internal/api` (handlers), `internal/core` (Calculator), `internal/client` (tax Provider), `models`, `utils`
+* Modules: `internal/api` (handlers), `internal/core` (Calculator), `internal/client` (tax Provider), `internal/models`, `internal/utils` (math utility functions)
 * Makefile: `build`, `run`, `test`, `fmt`, `vet`
 
 ## Design
