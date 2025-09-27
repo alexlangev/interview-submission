@@ -25,6 +25,6 @@ func main() {
 		Handler: r,
 	}
 
-	log.Printf("HTTP server listening on %s (api-url=%s)", *addr, apiURL)
+	log.Printf("HTTP server listening on %s", *addr)
 	log.Fatal(srv.ListenAndServe())
 }
