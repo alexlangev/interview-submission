@@ -14,7 +14,7 @@ An HTTP API that follow REST style that returns Canadian **federal** income tax 
 
 * Thin HTTP → pure `core.Calculator`
 * `Provider` interface for tax brackets
-* Money in **cents (int64)**; to prevent floating point arithmetic impresisions.
+* Money in **cents (int64)**; to prevent floating-point arithmetic imprecision.
 * Versioned routes: `/v1/...`
 
 ## Routes
